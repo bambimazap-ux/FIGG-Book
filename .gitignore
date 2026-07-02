@@ -1,10 +1,3 @@
-# Ignore large video and audio media files
-docs/media/*
-# Except for the official logos which are small assets
-!docs/media/difs_logo.png
-!docs/media/rd_logo.png
-!docs/media/פרק 1/השוואת_תהליכי_FIGG_ו-DNA_מסורתי.png
-
 # Ignore local files
 chrome_debug.log
 **/__pycache__/

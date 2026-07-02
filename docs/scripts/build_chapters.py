@@ -235,26 +235,36 @@ for ch_id, ch_file, num in ordered_files:
         # For syllabus and key articles, everything is in content_html
         details_html = ""
         
-    # Media mapping (Chapter 1 has files, others have placeholders handled in app.js)
+    # Dynamic Media mapping: auto-discover files in docs/media/פרק X/
     media = []
-    if num == 1:
-        media = [
-            {
-                "type": "audio",
-                "title": "גנאלוגיה גנטית פורנזית כ-GPS לחקירות פליליות",
-                "src": "media/פרק 1/גנאלוגיה_גנטית_פורנזית_כ-GPS_לחקירות_פליליות.m4a"
-            },
-            {
-                "type": "video",
-                "title": "מהפכת הגנאלוגיה ו־FIGG",
-                "src": "media/פרק 1/מהפכת_הגנאלוגיה_ו־FIGG_.mp4"
-            },
-            {
-                "type": "infographic",
-                "title": "השוואת תהליכי FIGG ו-DNA מסורתי",
-                "src": "media/פרק 1/השוואת_תהליכי_FIGG_ו-DNA_מסורתי.png"
-            }
-        ]
+    media_chapter_dir = os.path.join(base_dir, "docs", "media", f"פרק {num}")
+    if os.path.exists(media_chapter_dir):
+        for file_name in os.listdir(media_chapter_dir):
+            file_path = os.path.join(media_chapter_dir, file_name)
+            if os.path.isfile(file_path):
+                ext = os.path.splitext(file_name)[1].lower()
+                media_type = None
+                if ext in ['.mp4', '.mov', '.avi']:
+                    media_type = "video"
+                elif ext in ['.m4a', '.mp3', '.wav']:
+                    media_type = "audio"
+                elif ext in ['.png', '.jpg', '.jpeg', '.gif', '.svg']:
+                    media_type = "infographic"
+                
+                if media_type:
+                    # Clean title: replace underscores/dashes with spaces, strip extension
+                    clean_title = os.path.splitext(file_name)[0].replace('_', ' ').replace('-', ' ').strip()
+                    # Remove starting "פרק X" or digits prefix
+                    clean_title = re.sub(r'^פרק\s+\d+\s+-\s+|^פרק\s+\d+\s+|^[0-9]+\s+-\s+|^[0-9]+\s+', '', clean_title)
+                    
+                    media.append({
+                        "type": media_type,
+                        "title": clean_title,
+                        "src": f"media/פרק {num}/{file_name}"
+                    })
+        # Sort media by type: audio first, then video, then infographic
+        type_order = {"audio": 1, "video": 2, "infographic": 3}
+        media.sort(key=lambda x: (type_order.get(x["type"], 9), x["title"]))
         
     chapters_data.append({
         "id": ch_id,
