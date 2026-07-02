@@ -7,7 +7,7 @@ import markdown
 script_dir = os.path.dirname(os.path.abspath(__file__))
 base_dir = os.path.abspath(os.path.join(script_dir, "..", ".."))
 chapters_dir = os.path.join(base_dir, "פרקים")
-output_dir = os.path.join(base_dir, "interactive_book", "data")
+output_dir = os.path.join(base_dir, "docs", "data")
 os.makedirs(output_dir, exist_ok=True)
 
 # Ordered chapters according to syllabus & user requests
