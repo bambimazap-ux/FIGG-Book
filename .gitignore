@@ -1,0 +1,11 @@
+# Ignore large video and audio media files
+interactive_book/media/*
+# Except for the official logos which are small assets
+!interactive_book/media/difs_logo.png
+!interactive_book/media/rd_logo.png
+!interactive_book/media/פרק 1/השוואת_תהליכי_FIGG_ו-DNA_מסורתי.png
+
+# Ignore local files
+chrome_debug.log
+**/__pycache__/
+*.pyc
