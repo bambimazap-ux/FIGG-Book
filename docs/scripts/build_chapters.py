@@ -161,6 +161,7 @@ chapters_data = [
     }
 ]
 global_concepts = []
+chapter_details = []
 
 for ch_id, ch_file, num in ordered_files:
     file_path = os.path.join(chapters_dir, ch_file)
@@ -266,6 +267,87 @@ for ch_id, ch_file, num in ordered_files:
         type_order = {"audio": 1, "video": 2, "infographic": 3}
         media.sort(key=lambda x: (type_order.get(x["type"], 9), x["title"]))
         
+    # If it is a regular chapter, collect references and further reading details for the appendix
+    if is_regular_chapter:
+        chapter_details.append({
+            "num": num,
+            "title": title,
+            "references_html": references_html,
+            "further_reading_html": further_reading_html
+        })
+        
+    # If it is the key articles appendix, build the dynamic unified layout
+    if num == 16:
+        # 1. Navigation buttons grid at the top
+        nav_html = """
+        <div class="appendix-nav-section" style="margin-bottom: 40px; padding: 24px; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 16px; backdrop-filter: blur(10px); box-shadow: 0 4px 6px rgba(0,0,0,0.02);">
+          <h3 style="margin-top: 0; margin-bottom: 18px; color: var(--primary-color); font-size: 1.25rem; font-weight: 700; font-family: inherit;">מעבר מהיר למקורות הפרקים:</h3>
+          <div class="appendix-nav-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 10px;">
+            <button class="appendix-nav-btn" onclick="scrollToAppendixSection('general')">מאמרים כלליים</button>
+        """
+        for ch in sorted(chapter_details, key=lambda x: x["num"]):
+            if ch["references_html"] or ch["further_reading_html"]:
+                nav_html += f'            <button class="appendix-nav-btn" onclick="scrollToAppendixSection({ch["num"]})">פרק {ch["num"]}</button>\n'
+        nav_html += """
+          </div>
+        </div>
+        """
+        
+        # 2. General articles section (originally from מאמרים_מרכזיים.md)
+        general_html = f"""
+        <div class="appendix-chapter-section" id="appendix-chapter-general" style="margin-bottom: 48px; padding: 28px; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 16px; backdrop-filter: blur(10px);">
+          <h2 style="color: var(--primary-color); border-bottom: 2px solid var(--border-color); padding-bottom: 12px; margin-top: 0; margin-bottom: 24px; font-size: 1.6rem; font-weight: 700;">מאמרים כלליים ומחקרים מובילים</h2>
+          {full_html}
+        </div>
+        """
+        
+        # 3. Chapters sections
+        chapters_sections_html = ""
+        for ch in sorted(chapter_details, key=lambda x: x["num"]):
+            if not ch["references_html"] and not ch["further_reading_html"]:
+                continue
+                
+            chapters_sections_html += f"""
+            <div class="appendix-chapter-section" id="appendix-chapter-{ch["num"]}" style="margin-bottom: 48px; padding: 28px; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 16px; backdrop-filter: blur(10px);">
+              <h2 style="color: var(--primary-color); border-bottom: 2px solid var(--border-color); padding-bottom: 12px; margin-top: 0; margin-bottom: 24px; font-size: 1.6rem; font-weight: 700;">פרק {ch["num"]}: {ch["title"]}</h2>
+            """
+            
+            if ch["references_html"]:
+                chapters_sections_html += f"""
+                <div class="appendix-section-block" style="margin-bottom: 28px;">
+                  <h3 style="color: var(--text-primary); font-size: 1.25rem; font-weight: 700; margin-top: 0; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
+                    <span style="display: inline-block; width: 6px; height: 18px; background: var(--accent-color); border-radius: 3px;"></span>
+                    מאמרי יסוד ומקורות הפרק
+                  </h3>
+                  <div class="appendix-items-list">
+                    {ch["references_html"]}
+                  </div>
+                </div>
+                """
+                
+            if ch["further_reading_html"]:
+                chapters_sections_html += f"""
+                <div class="appendix-section-block">
+                  <h3 style="color: var(--text-primary); font-size: 1.25rem; font-weight: 700; margin-top: 0; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
+                    <span style="display: inline-block; width: 6px; height: 18px; background: var(--primary-color); border-radius: 3px;"></span>
+                    מקורות לקריאה נוספת והרחבה
+                  </h3>
+                  <div class="appendix-items-list">
+                    {ch["further_reading_html"]}
+                  </div>
+                </div>
+                """
+                
+            chapters_sections_html += "</div>"
+            
+        # Combine everything into full_html for the appendix page
+        full_html = f"""
+        <h1 style="margin-bottom: 32px;">נספח: מקורות ומאמרים להרחבה</h1>
+        {nav_html}
+        {general_html}
+        {chapters_sections_html}
+        """
+
     chapters_data.append({
         "id": ch_id,
         "original_chapter_number": num,
@@ -278,7 +360,7 @@ for ch_id, ch_file, num in ordered_files:
         "details_html": details_html,
         "concept_boxes": concept_boxes,
         "concept_box_html": concept_box_html,
-        "further_reading_html": further_reading_html,
+        "further_reading_html": "", # Clear from the chapter body
         "references_html": references_html,
         "media": media,
         "order": len(chapters_data)

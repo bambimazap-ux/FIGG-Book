@@ -161,13 +161,13 @@ function setupNavigation() {
     li.id = `nav-item-${ch.id}`;
     
     // Determine the icon or badge for special pages
-    const icon = ch.is_home ? '🏠' : (ch.is_glossary ? '📚' : (ch.id === 'key_articles' ? '🔬' : ''));
+    const icon = ch.is_home ? '🏠' : (ch.is_glossary ? '📚' : (ch.id === 'key_articles' ? '📖' : ''));
     
     let cleanTitle = ch.title;
     if (ch.is_home) {
       cleanTitle = 'דף הבית';
     } else if (ch.id === 'key_articles') {
-      cleanTitle = 'מקורות';
+      cleanTitle = 'נספח מקורות והרחבה';
     } else if (ch.id === 'glossary') {
       cleanTitle = 'מושגי יסוד';
     }
@@ -307,9 +307,9 @@ function loadChapter(chapterId, scrollToHeadingId = null) {
         </button>
         ` : ''}
         
-        ${(chapter.references_html || chapter.further_reading_html) ? `
+        ${chapter.references_html ? `
         <button class="modular-toggle-btn" id="modular-references-btn">
-          <span>הצג מקורות וקריאה נוספת</span>
+          <span>הצג מקורות</span>
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
             <polyline points="6 9 12 15 18 9"></polyline>
           </svg>
@@ -340,11 +340,20 @@ function loadChapter(chapterId, scrollToHeadingId = null) {
       ` : ''}
       
       <!-- 3. Collapsible References -->
-      ${(chapter.references_html || chapter.further_reading_html) ? `
+      ${chapter.references_html ? `
       <div class="chapter-details-collapsible" id="chapter-references-container">
         <h2 class="sub-chapter-title" style="color: var(--primary-color); margin-top: 0; margin-bottom: 24px; border-bottom: 2px solid var(--border-color); padding-bottom: 8px; font-size: 1.5rem; font-weight: 700;">מקורות</h2>
         ${chapter.references_html}
-        ${chapter.further_reading_html ? `<hr style="margin: 32px 0; border: none; border-top: 1px solid var(--border-color);">${chapter.further_reading_html}` : ''}
+        
+        <!-- Button pointing to the appendix for Further Reading -->
+        ${chapter.original_chapter_number ? `
+        <div style="margin-top: 24px; padding-top: 16px; border-top: 1px dashed var(--border-color);">
+          <button class="nav-btn primary" onclick="navigateToFurtherReading(${chapter.original_chapter_number})" style="display: flex; align-items: center; gap: 8px; font-weight: 600; padding: 10px 16px; border-radius: 8px; border: none; background: var(--primary-color); color: white; cursor: pointer; font-family: inherit; font-size: 0.95rem; transition: background 0.2s;">
+            <svg style="width: 18px; height: 18px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+            מעבר לנספח מקורות להרחבה של פרק ${chapter.original_chapter_number}
+          </button>
+        </div>
+        ` : ''}
       </div>
       ` : ''}
     `;
@@ -390,7 +399,7 @@ function loadChapter(chapterId, scrollToHeadingId = null) {
     
     if (referencesBtn && referencesContainer) {
       referencesBtn.addEventListener('click', () => {
-        toggleCollapsibleSection(referencesBtn, referencesContainer, 'הצג מקורות וקריאה נוספת', 'כווץ מקורות וקריאה');
+        toggleCollapsibleSection(referencesBtn, referencesContainer, 'הצג מקורות', 'כווץ מקורות');
       });
     }
     
@@ -1378,7 +1387,7 @@ function setupCitations() {
       const refBtn = document.getElementById('modular-references-btn');
       const refContainer = document.getElementById('chapter-references-container');
       if (refBtn && refContainer && !refContainer.classList.contains('show')) {
-        toggleCollapsibleSection(refBtn, refContainer, 'הצג מקורות וקריאה נוספת', 'כווץ מקורות וקריאה נוספת', true);
+        toggleCollapsibleSection(refBtn, refContainer, 'הצג מקורות', 'כווץ מקורות', true);
       }
       
       setTimeout(() => {
@@ -1565,3 +1574,25 @@ function getPlainText(html) {
 function escapeRegExp(string) {
   return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
 }
+
+// --- Appendix Navigation Helpers ---
+window.navigateToFurtherReading = function(chapterNum) {
+  navigateToChapter('key_articles');
+  setTimeout(() => {
+    const targetElement = document.getElementById(`appendix-chapter-${chapterNum}`);
+    if (targetElement) {
+      targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      targetElement.classList.add('chapter-highlight-flash');
+      setTimeout(() => targetElement.classList.remove('chapter-highlight-flash'), 2500);
+    }
+  }, 220);
+};
+
+window.scrollToAppendixSection = function(chapterId) {
+  const targetElement = document.getElementById(`appendix-chapter-${chapterId}`);
+  if (targetElement) {
+    targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    targetElement.classList.add('chapter-highlight-flash');
+    setTimeout(() => targetElement.classList.remove('chapter-highlight-flash'), 2500);
+  }
+};
