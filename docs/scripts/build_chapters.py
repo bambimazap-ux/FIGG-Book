@@ -2,6 +2,39 @@ import os
 import json
 import re
 import markdown
+import cloudinary
+import cloudinary.search
+
+# Cloudinary configuration using your verified API keys
+cloudinary.config(
+    cloud_name='mazap-cast',
+    api_key='953847344213348',
+    api_secret='-4BYRnf2hM9HkHBUv5RGOnP9CRY'
+)
+
+# Helper to normalize file names for Cloudinary matching
+def normalize_name(name):
+    name = os.path.splitext(name)[0]
+    name = re.sub(r'_[a-z0-9]{6}$', '', name) # strip Cloudinary suffix
+    # Keep only Hebrew letters, English letters, and digits (strip underscores, punctuation, spaces, maqaf)
+    name = re.sub(r'[^0-9a-zA-Z\u05d0-\u05ea]', '', name)
+    return name.lower()
+
+# Manual overrides for files that have different names in local vs Cloudinary
+manual_overrides = {
+    "מהפכתהגנאלוגיהוfigg": "מבואלגנאלוגיהגנטיתוfigg"
+}
+
+cloudinary_map = {}
+try:
+    print("Fetching assets list from Cloudinary...")
+    res = cloudinary.Search().expression('resource_type:image OR resource_type:video').max_results(100).execute()
+    for asset in res.get('resources', []):
+        norm = normalize_name(asset['public_id'])
+        cloudinary_map[norm] = asset['secure_url']
+    print(f"Successfully loaded {len(cloudinary_map)} Cloudinary resources.")
+except Exception as e:
+    print(f"Warning: Cloudinary fetch failed (using local paths instead): {e}")
 
 # Find directories relative to this script to prevent Windows encoding path issues
 script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -258,10 +291,20 @@ for ch_id, ch_file, num in ordered_files:
                     # Remove starting "פרק X" or digits prefix
                     clean_title = re.sub(r'^פרק\s+\d+\s+-\s+|^פרק\s+\d+\s+|^[0-9]+\s+-\s+|^[0-9]+\s+', '', clean_title)
                     
+                    # Normalize local filename for Cloudinary lookup
+                    local_norm = normalize_name(file_name)
+                    if local_norm in manual_overrides:
+                        local_norm = manual_overrides[local_norm]
+                        
+                    if local_norm in cloudinary_map:
+                        src_url = cloudinary_map[local_norm]
+                    else:
+                        src_url = f"media/פרק {num}/{file_name}"
+                    
                     media.append({
                         "type": media_type,
                         "title": clean_title,
-                        "src": f"media/פרק {num}/{file_name}"
+                        "src": src_url
                     })
         # Sort media by type: audio first, then video, then infographic
         type_order = {"audio": 1, "video": 2, "infographic": 3}

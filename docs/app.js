@@ -488,9 +488,14 @@ function renderHomePage() {
         <p>ברוכים הבאים לספר הדיגיטלי האינטראקטיבי בנושא <strong>FIGG (Forensic Investigative Genetic Genealogy)</strong>.</p>
         <p>ספר מקיף זה נועד להעניק הבנה מעמיקה ומתקדמת של היישומים החקירתיים, המעבדתיים, הסטטיסטיים והאתיים של גנאלוגיה גנטית בפתרון מקרי פשע חמורים וזיהוי שרידי אדם. הספר מותאם במיוחד למומחים בתחום הגנטיקה הפורנזית והחקירות, ומציג את התכנים במבנה אינטראקטיבי מתקדם הכולל מפתח מונחים מורחב והפניות ישירות למקורות מדעיים.</p>
         
-        <div class="home-credits" style="margin-top: 20px; padding-top: 14px; border-top: 1px dashed var(--border-color); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; font-size: 0.9rem; color: var(--text-secondary);">
-          <span>פיתוח ותוכן: <strong>רפ"ק נפתלי עינות</strong>, קמ"ד מו"פ מז"פ</span>
-          <span style="font-size: 0.85rem; color: var(--text-muted);">מדור מחקר ופיתוח, החטיבה לזיהוי פלילי (מז"פ)</span>
+        <div class="home-credits" style="margin-top: 20px; padding-top: 14px; border-top: 1px dashed var(--border-color); display: flex; flex-direction: column; gap: 6px; font-size: 0.9rem; color: var(--text-secondary);">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+            <span>פיתוח ותוכן: <strong>רפ"ק נפתלי עינות</strong>, קמ"ד מו"פ מז"פ</span>
+            <span>מומחה תוכן: <strong>רפ"ק יעקב משיח</strong>, ק' מודיעין פורנזי, מדור הבטחת איכות</span>
+          </div>
+          <div style="font-size: 0.85rem; color: var(--text-muted); text-align: center; margin-top: 4px; border-top: 1px solid rgba(0,0,0,0.05); padding-top: 4px;">
+            החטיבה לזיהוי פלילי (מז"פ), משטרת ישראל
+          </div>
         </div>
       </div>
 
