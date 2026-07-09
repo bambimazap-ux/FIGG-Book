@@ -114,6 +114,33 @@ function setTheme(theme) {
     sunIcon.style.display = 'none';
     moonIcon.style.display = 'block';
   }
+  
+  const bottomThemeBtn = document.getElementById('btn-bottom-theme');
+  if (bottomThemeBtn) {
+    if (theme === 'dark') {
+      bottomThemeBtn.innerHTML = `
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="5"></circle>
+          <line x1="12" y1="1" x2="12" y2="3"></line>
+          <line x1="12" y1="21" x2="12" y2="23"></line>
+          <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+          <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+          <line x1="1" y1="12" x2="3" y2="12"></line>
+          <line x1="21" y1="12" x2="23" y2="12"></line>
+          <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+          <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+        </svg>
+        <span>מצב יום</span>
+      `;
+    } else {
+      bottomThemeBtn.innerHTML = `
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+        </svg>
+        <span>מצב לילה</span>
+      `;
+    }
+  }
 }
 
 // --- Font Size Management ---
@@ -1346,6 +1373,92 @@ function runSearch(query) {
   });
 }
 
+function runMobileSearch(query) {
+  const resultsContainer = document.getElementById('mobile-search-results');
+  if (!resultsContainer) return;
+  resultsContainer.innerHTML = '';
+  
+  if (query.length < 2) {
+    resultsContainer.innerHTML = '';
+    return;
+  }
+  
+  const results = [];
+  const escapedQuery = escapeRegExp(query);
+  const regex = new RegExp(escapedQuery, 'gi');
+  
+  state.chapters.forEach(ch => {
+    let titleMatches = (ch.title.toLowerCase().indexOf(query.toLowerCase()) > -1);
+    const plainText = getPlainText(ch.content_html || ch.content);
+    let match;
+    let chResultsCount = 0;
+    
+    while ((match = regex.exec(plainText)) !== null) {
+      if (chResultsCount >= 5) break;
+      const startIdx = Math.max(0, match.index - 50);
+      const endIdx = Math.min(plainText.length, match.index + query.length + 50);
+      let snippet = plainText.substring(startIdx, endIdx);
+      if (startIdx > 0) snippet = '...' + snippet;
+      if (endIdx < plainText.length) snippet = snippet + '...';
+      const highlightedSnippet = snippet.replace(
+        new RegExp(escapedQuery, 'gi'),
+        m => `<mark>${m}</mark>`
+      );
+      
+      results.push({
+        id: ch.id,
+        title: ch.title,
+        snippet: highlightedSnippet
+      });
+      chResultsCount++;
+    }
+    if (titleMatches && chResultsCount === 0) {
+      results.push({
+        id: ch.id,
+        title: ch.title,
+        snippet: 'התאמה בכותרת הפרק.'
+      });
+    }
+  });
+  
+  if (results.length === 0) {
+    resultsContainer.innerHTML = `<div class="search-results-empty" style="text-align: center; padding: 24px; color: var(--text-secondary);">לא נמצאו התאמות עבור "${query}"</div>`;
+    return;
+  }
+  
+  results.forEach(res => {
+    const item = document.createElement('div');
+    item.className = 'search-result-item';
+    item.style.padding = '14px 16px';
+    item.style.borderBottom = '1px solid var(--border-color)';
+    item.style.cursor = 'pointer';
+    item.innerHTML = `
+      <span class="search-result-chapter" style="display: block; font-weight: 700; font-size: 0.95rem; color: var(--primary-color); margin-bottom: 4px;">${res.title}</span>
+      <span class="search-result-snippet" style="display: block; font-size: 0.85rem; color: var(--text-secondary); line-height: 1.5;">${res.snippet}</span>
+    `;
+    
+    item.addEventListener('click', () => {
+      loadChapter(res.id);
+      document.getElementById('mobile-search-overlay').style.display = 'none';
+      document.getElementById('mobile-search-input').value = '';
+      resultsContainer.innerHTML = '';
+      
+      const bottomSearchBtn = document.getElementById('btn-bottom-search');
+      if (bottomSearchBtn) bottomSearchBtn.classList.remove('active');
+      
+      if (res.id === 'home') {
+        document.getElementById('btn-bottom-home').classList.add('active');
+      } else if (res.id === 'glossary') {
+        document.getElementById('btn-bottom-glossary').classList.add('active');
+      }
+      
+      setTimeout(() => highlightWordAndScroll(query), 300);
+    });
+    
+    resultsContainer.appendChild(item);
+  });
+}
+
 function highlightWordAndScroll(query) {
   const body = elements.readerBody;
   const escapedQuery = escapeRegExp(query);
@@ -1509,48 +1622,86 @@ function setupEventListeners() {
     const isVisible = elements.bookmarksPanel.style.display === 'flex';
     elements.bookmarksPanel.style.display = isVisible ? 'none' : 'flex';
     elements.searchResultsPanel.style.display = 'none'; // Close other
-    
-    // Toggle active class on bottom nav item
-    const bottomBookmarksBtn = document.getElementById('btn-bottom-bookmarks');
-    if (bottomBookmarksBtn) {
-      if (elements.bookmarksPanel.style.display === 'flex') {
-        bottomBookmarksBtn.classList.add('active');
-        document.getElementById('btn-bottom-home').classList.remove('active');
-        document.getElementById('btn-bottom-glossary').classList.remove('active');
-      } else {
-        bottomBookmarksBtn.classList.remove('active');
-        if (state.currentChapter) {
-          if (state.currentChapter.id === 'home') {
-            document.getElementById('btn-bottom-home').classList.add('active');
-          } else if (state.currentChapter.id === 'glossary') {
-            document.getElementById('btn-bottom-glossary').classList.add('active');
-          }
-        }
-      }
-    }
   });
   
   // Mobile bottom nav listeners
   const btnBottomHome = document.getElementById('btn-bottom-home');
-  const btnBottomBookmarks = document.getElementById('btn-bottom-bookmarks');
+  const btnBottomSearch = document.getElementById('btn-bottom-search');
+  const btnBottomFontsize = document.getElementById('btn-bottom-fontsize');
+  const btnBottomTheme = document.getElementById('btn-bottom-theme');
   const btnBottomGlossary = document.getElementById('btn-bottom-glossary');
+  
+  const mobileSearchOverlay = document.getElementById('mobile-search-overlay');
+  const mobileSearchInput = document.getElementById('mobile-search-input');
+  const btnCloseMobileSearch = document.getElementById('btn-close-mobile-search');
   
   if (btnBottomHome) {
     btnBottomHome.addEventListener('click', () => {
       navigateToChapter('home');
+      if (mobileSearchOverlay) mobileSearchOverlay.style.display = 'none';
     });
   }
   
-  if (btnBottomBookmarks) {
-    btnBottomBookmarks.addEventListener('click', (e) => {
+  if (btnBottomSearch) {
+    btnBottomSearch.addEventListener('click', (e) => {
       e.stopPropagation();
-      elements.bookmarksToggleBtn.click();
+      if (mobileSearchOverlay) {
+        const isVisible = mobileSearchOverlay.style.display === 'flex';
+        mobileSearchOverlay.style.display = isVisible ? 'none' : 'flex';
+        if (!isVisible) {
+          mobileSearchInput.value = '';
+          document.getElementById('mobile-search-results').innerHTML = '';
+          mobileSearchInput.focus();
+          
+          btnBottomSearch.classList.add('active');
+          if (btnBottomHome) btnBottomHome.classList.remove('active');
+          if (btnBottomGlossary) btnBottomGlossary.classList.remove('active');
+        } else {
+          btnBottomSearch.classList.remove('active');
+          if (state.currentChapter) {
+            if (state.currentChapter.id === 'home' && btnBottomHome) btnBottomHome.classList.add('active');
+            if (state.currentChapter.id === 'glossary' && btnBottomGlossary) btnBottomGlossary.classList.add('active');
+          }
+        }
+      }
+    });
+  }
+  
+  if (btnBottomFontsize) {
+    btnBottomFontsize.addEventListener('click', (e) => {
+      e.stopPropagation();
+      elements.fontsizeToggleBtn.click();
+    });
+  }
+  
+  if (btnBottomTheme) {
+    btnBottomTheme.addEventListener('click', (e) => {
+      e.stopPropagation();
+      elements.themeToggleBtn.click();
     });
   }
   
   if (btnBottomGlossary) {
     btnBottomGlossary.addEventListener('click', () => {
       navigateToChapter('glossary');
+      if (mobileSearchOverlay) mobileSearchOverlay.style.display = 'none';
+    });
+  }
+  
+  if (btnCloseMobileSearch) {
+    btnCloseMobileSearch.addEventListener('click', () => {
+      if (mobileSearchOverlay) mobileSearchOverlay.style.display = 'none';
+      if (btnBottomSearch) btnBottomSearch.classList.remove('active');
+      if (state.currentChapter) {
+        if (state.currentChapter.id === 'home' && btnBottomHome) btnBottomHome.classList.add('active');
+        if (state.currentChapter.id === 'glossary' && btnBottomGlossary) btnBottomGlossary.classList.add('active');
+      }
+    });
+  }
+  
+  if (mobileSearchInput) {
+    mobileSearchInput.addEventListener('input', (e) => {
+      runMobileSearch(e.target.value.trim());
     });
   }
   
@@ -1579,22 +1730,11 @@ function setupEventListeners() {
   
   // Close popups on click outside
   document.addEventListener('click', (e) => {
-    if (!e.target.closest('.fontsize-dropdown')) {
+    if (!e.target.closest('.fontsize-dropdown') && !e.target.closest('#btn-bottom-fontsize')) {
       elements.fontsizeMenu.style.display = 'none';
     }
-    if (!e.target.closest('#bookmarks-toggle-btn') && !e.target.closest('#bookmarks-panel') && !e.target.closest('#btn-bottom-bookmarks')) {
+    if (!e.target.closest('#bookmarks-toggle-btn') && !e.target.closest('#bookmarks-panel')) {
       elements.bookmarksPanel.style.display = 'none';
-      const bottomBookmarksBtn = document.getElementById('btn-bottom-bookmarks');
-      if (bottomBookmarksBtn) {
-        bottomBookmarksBtn.classList.remove('active');
-        if (state.currentChapter) {
-          if (state.currentChapter.id === 'home') {
-            document.getElementById('btn-bottom-home').classList.add('active');
-          } else if (state.currentChapter.id === 'glossary') {
-            document.getElementById('btn-bottom-glossary').classList.add('active');
-          }
-        }
-      }
     }
     if (!e.target.closest('.search-container') && !e.target.closest('#search-results-panel')) {
       elements.searchResultsPanel.style.display = 'none';
