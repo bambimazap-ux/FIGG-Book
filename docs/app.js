@@ -1599,7 +1599,6 @@ function setupEventListeners() {
     if (!e.target.closest('.search-container') && !e.target.closest('#search-results-panel')) {
       elements.searchResultsPanel.style.display = 'none';
     }
-    }
   });
   
   // Scroll event in Reader
