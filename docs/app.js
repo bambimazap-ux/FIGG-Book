@@ -225,6 +225,12 @@ function loadChapter(chapterId, scrollToHeadingId = null) {
     elements.mediaSection.style.display = 'none';
   }
   
+  // Close panels on navigation
+  if (elements.bookmarksPanel) elements.bookmarksPanel.style.display = 'none';
+  if (elements.searchResultsPanel) elements.searchResultsPanel.style.display = 'none';
+  const bottomBookmarksBtn = document.getElementById('btn-bottom-bookmarks');
+  if (bottomBookmarksBtn) bottomBookmarksBtn.classList.remove('active');
+
   // Highlight sidebar active item
   document.querySelectorAll('.nav-item').forEach(item => {
     if (item.id === `nav-item-${chapterId}`) {
@@ -233,6 +239,18 @@ function loadChapter(chapterId, scrollToHeadingId = null) {
       item.classList.remove('active');
     }
   });
+
+  // Highlight bottom nav active item
+  document.querySelectorAll('.mobile-bottom-nav .nav-item').forEach(item => {
+    item.classList.remove('active');
+  });
+  if (chapterId === 'home') {
+    const btn = document.getElementById('btn-bottom-home');
+    if (btn) btn.classList.add('active');
+  } else if (chapterId === 'glossary') {
+    const btn = document.getElementById('btn-bottom-glossary');
+    if (btn) btn.classList.add('active');
+  }
   
   // Render main body
   if (chapter.is_home) {
@@ -508,30 +526,6 @@ function renderHomePage() {
         <div style="font-size: 0.92rem; line-height: 1.6; color: var(--text-color);">
           <strong>שים לב:</strong> תכנים אלו נכתבו בעזרת כלי בינה מלאכותית <strong>Undermind AI</strong>, ועברו הגהה של גורמים מקצועיים. עם זאת, יש להפעיל שיקול דעת מקצועי.
         </div>
-      </div>
-
-      <div class="home-download-card" style="background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 16px; padding: 20px; margin-bottom: 28px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; box-shadow: var(--shadow-sm);">
-        <div style="display: flex; align-items: center; gap: 12px; text-align: right;">
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--primary-color)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;">
-            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-            <polyline points="14 2 14 8 20 8"></polyline>
-            <line x1="16" y1="13" x2="8" y2="13"></line>
-            <line x1="16" y1="17" x2="8" y2="17"></line>
-            <polyline points="10 9 9 9 8 9"></polyline>
-          </svg>
-          <div>
-            <h3 style="margin: 0 0 4px 0; font-size: 1.1rem; color: var(--text-color);">ספר הקורס בגרסה מקוצרת (PDF)</h3>
-            <p style="margin: 0; font-size: 0.85rem; color: var(--text-secondary);">להורדה והדפסה - כולל את ליבת התוכן המקצועי ללא מקורות ונספחים</p>
-          </div>
-        </div>
-        <a href="ספר_קורס_FIGG_גרסה_מקוצרת.pdf" download class="btn-download" style="background: var(--primary-color); color: white; border: none; border-radius: 8px; padding: 8px 16px; font-size: 0.9rem; font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; transition: all 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-            <polyline points="7 10 12 15 17 10"></polyline>
-            <line x1="12" y1="15" x2="12" y2="3"></line>
-          </svg>
-          הורד PDF
-        </a>
       </div>
       
       <h2 class="home-grid-title">פרקי הספר</h2>
@@ -1196,6 +1190,12 @@ function updateBookmarksUI() {
   elements.bookmarksCount.textContent = count;
   elements.bookmarksCount.style.display = count > 0 ? 'inline-block' : 'none';
   
+  const bottomCount = document.getElementById('bottom-bookmarks-count');
+  if (bottomCount) {
+    bottomCount.textContent = count;
+    bottomCount.style.display = count > 0 ? 'inline-block' : 'none';
+  }
+  
   elements.bookmarksList.innerHTML = '';
   
   if (count === 0) {
@@ -1509,7 +1509,50 @@ function setupEventListeners() {
     const isVisible = elements.bookmarksPanel.style.display === 'flex';
     elements.bookmarksPanel.style.display = isVisible ? 'none' : 'flex';
     elements.searchResultsPanel.style.display = 'none'; // Close other
+    
+    // Toggle active class on bottom nav item
+    const bottomBookmarksBtn = document.getElementById('btn-bottom-bookmarks');
+    if (bottomBookmarksBtn) {
+      if (elements.bookmarksPanel.style.display === 'flex') {
+        bottomBookmarksBtn.classList.add('active');
+        document.getElementById('btn-bottom-home').classList.remove('active');
+        document.getElementById('btn-bottom-glossary').classList.remove('active');
+      } else {
+        bottomBookmarksBtn.classList.remove('active');
+        if (state.currentChapter) {
+          if (state.currentChapter.id === 'home') {
+            document.getElementById('btn-bottom-home').classList.add('active');
+          } else if (state.currentChapter.id === 'glossary') {
+            document.getElementById('btn-bottom-glossary').classList.add('active');
+          }
+        }
+      }
+    }
   });
+  
+  // Mobile bottom nav listeners
+  const btnBottomHome = document.getElementById('btn-bottom-home');
+  const btnBottomBookmarks = document.getElementById('btn-bottom-bookmarks');
+  const btnBottomGlossary = document.getElementById('btn-bottom-glossary');
+  
+  if (btnBottomHome) {
+    btnBottomHome.addEventListener('click', () => {
+      navigateToChapter('home');
+    });
+  }
+  
+  if (btnBottomBookmarks) {
+    btnBottomBookmarks.addEventListener('click', (e) => {
+      e.stopPropagation();
+      elements.bookmarksToggleBtn.click();
+    });
+  }
+  
+  if (btnBottomGlossary) {
+    btnBottomGlossary.addEventListener('click', () => {
+      navigateToChapter('glossary');
+    });
+  }
   
   elements.clearAllBookmarks.addEventListener('click', () => {
     if (confirm("האם ברצונך למחוק את כל הסימניות?")) {
@@ -1539,11 +1582,23 @@ function setupEventListeners() {
     if (!e.target.closest('.fontsize-dropdown')) {
       elements.fontsizeMenu.style.display = 'none';
     }
-    if (!e.target.closest('#bookmarks-toggle-btn') && !e.target.closest('#bookmarks-panel')) {
+    if (!e.target.closest('#bookmarks-toggle-btn') && !e.target.closest('#bookmarks-panel') && !e.target.closest('#btn-bottom-bookmarks')) {
       elements.bookmarksPanel.style.display = 'none';
+      const bottomBookmarksBtn = document.getElementById('btn-bottom-bookmarks');
+      if (bottomBookmarksBtn) {
+        bottomBookmarksBtn.classList.remove('active');
+        if (state.currentChapter) {
+          if (state.currentChapter.id === 'home') {
+            document.getElementById('btn-bottom-home').classList.add('active');
+          } else if (state.currentChapter.id === 'glossary') {
+            document.getElementById('btn-bottom-glossary').classList.add('active');
+          }
+        }
+      }
     }
     if (!e.target.closest('.search-container') && !e.target.closest('#search-results-panel')) {
       elements.searchResultsPanel.style.display = 'none';
+    }
     }
   });
   

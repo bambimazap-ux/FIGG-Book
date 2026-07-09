@@ -2154,3 +2154,85 @@ html, body {
 .chapter-highlight-flash {
   animation: highlight-pulse 2.5s ease-out;
 }
+
+/* --- Mobile Bottom Navigation --- */
+.mobile-bottom-nav {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .mobile-bottom-nav {
+    display: flex;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 64px;
+    background: var(--top-bar-bg);
+    border-top: 1px solid var(--card-border);
+    z-index: 1000;
+    justify-content: space-around;
+    align-items: center;
+    box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.08);
+    backdrop-filter: blur(10px);
+    padding: 0 10px;
+  }
+  
+  .mobile-bottom-nav .nav-item {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    font-size: 0.75rem;
+    font-family: inherit;
+    cursor: pointer;
+    flex: 1;
+    height: 100%;
+    position: relative;
+    transition: color 0.2s;
+  }
+  
+  .mobile-bottom-nav .nav-item svg {
+    stroke-width: 2px;
+  }
+  
+  .mobile-bottom-nav .nav-item.active {
+    color: var(--primary-color);
+  }
+  
+  .mobile-bottom-nav .bottom-nav-badge {
+    position: absolute;
+    top: 6px;
+    right: 50%;
+    transform: translateX(18px);
+    background: #ef4444;
+    color: white;
+    font-size: 0.65rem;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 10px;
+    border: 2px solid var(--top-bar-bg);
+  }
+  
+  /* Add padding to wrapper to prevent text overlap with the sticky bar */
+  .reader-wrapper {
+    padding-bottom: 90px !important;
+  }
+  
+  /* Disable the sidebar overlay/toggle on mobile if we use bottom nav instead */
+  #menu-toggle-btn {
+    display: none !important;
+  }
+  
+  .sidebar {
+    display: none !important;
+  }
+  
+  .sidebar-overlay {
+    display: none !important;
+  }
+}
