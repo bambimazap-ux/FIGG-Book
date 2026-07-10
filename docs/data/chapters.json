@@ -91,7 +91,7 @@
       {
         "type": "infographic",
         "title": "השוואת תהליכי FIGG ו DNA מסורתי",
-        "src": "media/פרק 1/השוואת_תהליכי_FIGG_ו-DNA_מסורתי.png"
+        "src": "https://res.cloudinary.com/mazap-cast/image/upload/v1783021148/%D7%94%D7%A9%D7%95%D7%95%D7%90%D7%AA_%D7%AA%D7%94%D7%9C%D7%99%D7%9B%D7%99_FIGG_%D7%95-DNA_%D7%9E%D7%A1%D7%95%D7%A8%D7%AA%D7%99_f6azwr.png"
       }
     ],
     "order": 1
@@ -187,7 +187,7 @@
       {
         "type": "infographic",
         "title": "ויזואליזציה של מבנה אוכלוסייה גנטי",
-        "src": "media/פרק 2/ויזואליזציה_של_מבנה_אוכלוסייה_גנטי.png"
+        "src": "https://res.cloudinary.com/mazap-cast/image/upload/v1783021133/%D7%95%D7%99%D7%96%D7%95%D7%90%D7%9C%D7%99%D7%96%D7%A6%D7%99%D7%94_%D7%A9%D7%9C_%D7%9E%D7%91%D7%A0%D7%94_%D7%90%D7%95%D7%9B%D7%9C%D7%95%D7%A1%D7%99%D7%99%D7%94_%D7%92%D7%A0%D7%98%D7%99_wwjrfn.png"
       }
     ],
     "order": 2
@@ -291,7 +291,7 @@
       {
         "type": "infographic",
         "title": "תהליך Phasing ו Imputation גנטי",
-        "src": "media/פרק 3/תהליך_Phasing_ו-Imputation_גנטי.png"
+        "src": "https://res.cloudinary.com/mazap-cast/image/upload/v1783021154/%D7%AA%D7%94%D7%9C%D7%99%D7%9A_Phasing_%D7%95-Imputation_%D7%92%D7%A0%D7%98%D7%99_npsrr0.png"
       }
     ],
     "order": 3
@@ -379,7 +379,7 @@
       {
         "type": "infographic",
         "title": "מיוזה, רקומבינציה ומקטעי דנ א",
-        "src": "media/פרק 4/מיוזה,_רקומבינציה_ומקטעי_דנ_א.png"
+        "src": "https://res.cloudinary.com/mazap-cast/image/upload/v1783021147/%D7%9E%D7%99%D7%95%D7%96%D7%94__%D7%A8%D7%A7%D7%95%D7%9E%D7%91%D7%99%D7%A0%D7%A6%D7%99%D7%94_%D7%95%D7%9E%D7%A7%D7%98%D7%A2%D7%99_%D7%93%D7%A0_%D7%90_ovdiz2.png"
       }
     ],
     "order": 4
@@ -555,7 +555,7 @@
       {
         "type": "infographic",
         "title": "מודל Erlich לצמצום חיפוש גנאלוגי",
-        "src": "media/פרק 6/מודל_Erlich_לצמצום_חיפוש_גנאלוגי.png"
+        "src": "https://res.cloudinary.com/mazap-cast/image/upload/v1783021154/%D7%9E%D7%95%D7%93%D7%9C_Erlich_%D7%9C%D7%A6%D7%9E%D7%A6%D7%95%D7%9D_%D7%97%D7%99%D7%A4%D7%95%D7%A9_%D7%92%D7%A0%D7%90%D7%9C%D7%95%D7%92%D7%99_mxfnck.png"
       }
     ],
     "order": 6
@@ -814,7 +814,7 @@
       {
         "type": "infographic",
         "title": "בחירת טכנולוגיית SNP ואימות איכות",
-        "src": "media/פרק 9/בחירת_טכנולוגיית_SNP_ואימות_איכות.png"
+        "src": "https://res.cloudinary.com/mazap-cast/image/upload/v1783021144/%D7%91%D7%97%D7%99%D7%A8%D7%AA_%D7%98%D7%9B%D7%A0%D7%95%D7%9C%D7%95%D7%92%D7%99%D7%99%D7%AA_SNP_%D7%95%D7%90%D7%99%D7%9E%D7%95%D7%AA_%D7%90%D7%99%D7%9B%D7%95%D7%AA_aal7uy.png"
       }
     ],
     "order": 9

@@ -28,7 +28,7 @@ manual_overrides = {
 cloudinary_map = {}
 try:
     print("Fetching assets list from Cloudinary...")
-    res = cloudinary.Search().expression('resource_type:image OR resource_type:video').max_results(100).execute()
+    res = cloudinary.Search().expression('resource_type:image OR resource_type:video').max_results(500).execute()
     for asset in res.get('resources', []):
         norm = normalize_name(asset['public_id'])
         cloudinary_map[norm] = asset['secure_url']
